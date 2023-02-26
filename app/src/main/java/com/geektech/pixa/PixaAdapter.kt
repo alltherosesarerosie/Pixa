@@ -11,7 +11,7 @@ class PixaAdapter(var list:ArrayList<Hit>): Adapter<PixaAdapter.PixaViewHolder>(
 
     class PixaViewHolder(var binding: ItemImageBinding): ViewHolder(binding.root){
         fun onBind(hit: Hit){
-            binding.imageV.load(hit.largeImageUrl)
+            binding.imageV.load(hit.largeImageURL)
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PixaViewHolder {

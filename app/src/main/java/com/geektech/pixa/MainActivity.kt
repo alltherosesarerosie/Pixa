@@ -1,17 +1,21 @@
 package com.geektech.pixa
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.geektech.pixa.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     var adapter = PixaAdapter(arrayListOf())
     var page = 1
+    lateinit var list:ArrayList<Hit>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,14 +26,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun initClicker() {
         with(binding) {
-            btnChangePage.setOnClickListener {
-                ++page
-                doRequest()
-            }
             btnEnter.setOnClickListener {
                 page = 1
                 doRequest()
             }
+
+            imageRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    ++page
+                    doRequest()
+                }
+            })
         }
     }
 
@@ -42,10 +50,22 @@ class MainActivity : AppCompatActivity() {
                 response: Response<PixaModel>
             ) {
                 if (response.isSuccessful) {
-                    adapter = PixaAdapter(response.body()?.hits!!)
-                    imageRecycler.adapter = adapter
-                    Log.e("astra", "onResponse: ${response.body()}")
+                    if (page==1){
+                        list = response.body()?.hits!!
+                        initAdapter()
+                    }
+                    else{
+                        list.addAll(response.body()?.hits!!)
+                        initAdapter()
+                    }
+
+                    Log.e("astra", "onResponse: $list")
                 }
+            }
+
+            private fun initAdapter() {
+                adapter = PixaAdapter(list)
+                imageRecycler.adapter = adapter
             }
 
             override fun onFailure(call: Call<PixaModel>, t: Throwable) {

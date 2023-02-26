@@ -5,5 +5,5 @@ data class PixaModel(
 )
 
 data class Hit(
-    var largeImageUrl: String
+    var largeImageURL: String
 )
