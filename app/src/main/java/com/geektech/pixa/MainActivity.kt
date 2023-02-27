@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     ++page
-                    doRequest()
+                    doRequest2()
                 }
             })
         }
@@ -50,27 +50,40 @@ class MainActivity : AppCompatActivity() {
                 response: Response<PixaModel>
             ) {
                 if (response.isSuccessful) {
-                    if (page==1){
-                        list = response.body()?.hits!!
-                        initAdapter()
-                    }
-                    else{
-                        list.addAll(response.body()?.hits!!)
-                        initAdapter()
-                    }
-
-                    Log.e("astra", "onResponse: $list")
+                    list = response.body()?.hits!!
+                    initAdapter()
                 }
-            }
-
-            private fun initAdapter() {
-                adapter = PixaAdapter(list)
-                imageRecycler.adapter = adapter
             }
 
             override fun onFailure(call: Call<PixaModel>, t: Throwable) {
                 Log.e("astra", "onFailure: ${t.message}")
             }
         })
+    }
+
+
+    private fun ActivityMainBinding.doRequest2() {
+        PixaService().api.getImages(
+            pictureWord = searchEd.text.toString(), page = page
+        ).enqueue(object : Callback<PixaModel> {
+            override fun onResponse(
+                call: Call<PixaModel>,
+                response: Response<PixaModel>
+            ) {
+                if (response.isSuccessful) {
+                        list.addAll(response.body()?.hits!!)
+                        initAdapter()
+                }
+            }
+
+            override fun onFailure(call: Call<PixaModel>, t: Throwable) {
+                Log.e("astra", "onFailure: ${t.message}")
+            }
+        })
+    }
+
+    private fun ActivityMainBinding.initAdapter() {
+        adapter = PixaAdapter(list)
+        imageRecycler.adapter = adapter
     }
 }
